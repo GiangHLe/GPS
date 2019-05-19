@@ -28,15 +28,16 @@
           </style>
         <script src="http://maps.googleapis.com/maps/api/js?key=#AIzaSyCGR0AEjSkP-22MPQIiG33LfUsnUhUDNQ0&sensor=false">
         </script>
+        <script src="https://www.gstatic.com/firebasejs/5.5.3/firebase.js"></script>
       </head>
 
       <body>
-          <h1 style="color:white;", align = "center">
+          <h1 style="color:white; text-align: center">
             MY LOCATION
          </h1>
-      
+         
           
-          <button onclick="showMap()", type="button", text-align: center>
+          <button onclick="getInfo()" type="button", text-align: center>
             Get Location
           </button>
           
@@ -46,12 +47,54 @@
       </body>
 </html>
 <script>
-    function showMap() 
+  // create firebase config
+  const firebaseConfig = {    
+      apiKey: "AIzaSyArEPcIs8WAFnV91hYjNGdgRGKzkVvWFPc",
+      authDomain: "gpsdevice-490ee.firebaseapp.com",
+      databaseURL: "https://gpsdevice-490ee.firebaseio.com",
+      projectId: "gpsdevice-490ee",
+      storageBucket: "gpsdevice-490ee.appspot.com",
+      messagingSenderId: "918934474657",
+      appId: "1:918934474657:web:328d3cce22eda7d9"
+};
+  // get global variable ref
+  var ref;
+
+  // Syntax
+  window.onload=function(){
+      console.log("Initilize database")
+      firebase.initializeApp(firebaseConfig);
+      ref = firebase.database().ref();     
+      console.log("Firebase", ref)  
+  };
+
+  // the list for append the way device move
+  var direction = [];
+
+  function getInfo() {
+      // make sure real time update
+      ref.on("value", function (snapshot) {
+          var gps = snapshot.val().data.gps;
+          var data = {
+          "lat": gps.latitude,
+          "long": gps.longtitude,
+          "velocity": gps.velocity
+          }
+          // call the below function
+          showMap(data)
+          // draw it down
+          
+      }, function (error) {
+          console.log("Error: " + error.code);
+      });
+  
+  }
+    function showMap(data) 
     {
-      var mycenter = {lat: 10.74349134, lng: 106.72737346};
+      var mycenter = {lat: data.lat, lng: data.long};
       var mapProp = 
       {
-        center:new google.maps.LatLng(10.74349134,106.72737346),
+        center:new google.maps.LatLng(data.lat,data.long),
         zoom:20,
         mapTypeId:google.maps.MapTypeId.ROADMAP
       };
@@ -60,6 +103,17 @@
           position:mycenter,
           map:map
           });
+      direction.push({lat: data.lat, lng: data.long})
+      // get a new var into Google API
+      console.log(direction)
+      var devicePath = new google.maps.Polyline({
+          path: direction,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+          });
+      devicePath.setMap(map);
     };
     //google.maps.event.addDomListener(window, 'load', showMap);
   

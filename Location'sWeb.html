@@ -25,6 +25,14 @@
                 margin-bottom: auto;
                 
             }
+            add {
+                display: block;
+                color: red;
+                position: absolute;
+                top: 80px;
+                left: 20px;
+                
+            }
           </style>
         <script src="http://maps.googleapis.com/maps/api/js?key=#AIzaSyCGR0AEjSkP-22MPQIiG33LfUsnUhUDNQ0&sensor=false">
         </script>
@@ -34,16 +42,17 @@
       <body>
           <h1 style="color:white; text-align: center">
             MY LOCATION
-         </h1>
-         
-          
+          </h1>
+
           <button onclick="getInfo()" type="button", text-align: center>
             Get Location
           </button>
-          
+          <add>
+            <h2 id="demo"></h2>
+          </add>
           
     
-        <div id="googleMap" style="width:1200px;height:800px;",></div>
+        <div id="googleMap" style="width:1000px;height:580px;",></div>
       </body>
 </html>
 <script>
@@ -59,7 +68,8 @@
 };
   // get global variable ref
   var ref;
-
+  // the list for append the way device move
+  var direction = [];
   // Syntax
   window.onload=function(){
       console.log("Initilize database")
@@ -67,9 +77,6 @@
       ref = firebase.database().ref();     
       console.log("Firebase", ref)  
   };
-
-  // the list for append the way device move
-  var direction = [];
 
   function getInfo() {
       // make sure real time update
@@ -104,6 +111,9 @@
           map:map
           });
       direction.push({lat: data.lat, lng: data.long})
+      console.log("velocity: "+ data.velocity)
+      console.log(direction)
+      document.getElementById("demo").innerHTML = 'Your velocity: ' + data.velocity + 'm/s';
       // get a new var into Google API
       console.log(direction)
       var devicePath = new google.maps.Polyline({
